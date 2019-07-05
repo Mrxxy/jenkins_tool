@@ -22,6 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Widget> widgets = [];
+  List<ProjectBean> projectList = [];
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -47,9 +48,8 @@ class _HomePageState extends State<HomePage> {
       var data = JenkinsListResp.fromJsonMap(response.data);
       var result = data.meta.errorCode;
       if (result == 1000) {
-        List<ProjectBean> projectList = data.data;
         setState(() {
-          _createList(projectList);
+          projectList = data.data;
         });
       }
     } catch (e) {
@@ -94,7 +94,6 @@ class _HomePageState extends State<HomePage> {
 
   void _downloadFile(String url) {
     if (Platform.isAndroid) {
-
     } else {
       _launchURL(url);
     }
@@ -109,85 +108,82 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _createList(List<ProjectBean> list) {
-    if (list.isNotEmpty) {
-      for (ProjectBean value in list) {
-        print('download url is ${value.pacUrl}');
-        widgets.add(new Card(
-          child: new Padding(
-            padding: EdgeInsets.all(10),
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                new Text(
-                  '名称:${value.fullName}',
-                  textAlign: TextAlign.left,
-                ),
-                new Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: new Text(
-                    '上次打包时间:${value.currentBuildTime}',
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                new Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: new Row(
-                    children: <Widget>[
-                      new Text('上次成功${value.lastSuccessNumber}'),
-                      new Padding(
-                        padding: EdgeInsets.only(left: 20),
-                        child: new Text('当前build${value.currentBuildNumber}'),
-                      )
-                    ],
-                  ),
-                ),
-                new Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      OutlineButton(
-                        child: new Text(
-                          '安装',
-                          style: TextStyle(fontSize: 13),
-                        ),
-                        shape: new RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
-                        borderSide: BorderSide(
-                            color: Color.fromARGB(255, 189, 162, 39)),
-                        textColor: Colors.black,
-                        onPressed: () {
-                          _downloadFile(value.pacUrl);
-                        },
-                      ),
-                      new Padding(
-                        padding: EdgeInsets.only(left: 15),
-                        child: OutlineButton(
-                          child: new Text(
-                            '打包',
-                            style: TextStyle(fontSize: 13),
-                          ),
-                          shape: new RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          borderSide: BorderSide(
-                              color: Color.fromARGB(255, 189, 162, 39)),
-                          textColor: Colors.black,
-                          onPressed: () {
-                            _buildProject(value.name);
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                )
-              ],
+  Widget _createList(int index) {
+    ProjectBean value = projectList.elementAt(index);
+    print('download url is ${value.pacUrl}');
+    Widget card = new Card(
+      child: new Padding(
+        padding: EdgeInsets.all(10),
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            new Text(
+              '名称:${value.fullName}',
+              textAlign: TextAlign.left,
             ),
-          ),
-        ));
-      }
-      widgets = List.from(widgets);
-    }
+            new Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: new Text(
+                '上次打包时间:${value.currentBuildTime}',
+                textAlign: TextAlign.left,
+              ),
+            ),
+            new Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: new Row(
+                children: <Widget>[
+                  new Text('上次成功${value.lastSuccessNumber}'),
+                  new Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: new Text('当前build${value.currentBuildNumber}'),
+                  )
+                ],
+              ),
+            ),
+            new Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  OutlineButton(
+                    child: new Text(
+                      '安装',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    shape: new RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    borderSide:
+                        BorderSide(color: Color.fromARGB(255, 189, 162, 39)),
+                    textColor: Colors.black,
+                    onPressed: () {
+                      _downloadFile(value.pacUrl);
+                    },
+                  ),
+                  new Padding(
+                    padding: EdgeInsets.only(left: 15),
+                    child: OutlineButton(
+                      child: new Text(
+                        '打包',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      shape: new RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 189, 162, 39)),
+                      textColor: Colors.black,
+                      onPressed: () {
+                        _buildProject(value.name);
+                      },
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+    return card;
   }
 
   @override
@@ -209,8 +205,11 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         ),
-        body: ListView(
-          children: widgets,
+        body: ListView.builder(
+          itemCount: projectList.length,
+          itemBuilder: (BuildContext context, int position) {
+            return _createList(position);
+          },
         ));
   }
 
