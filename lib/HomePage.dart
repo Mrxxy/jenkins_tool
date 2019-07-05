@@ -7,6 +7,7 @@ import 'api/Api.dart';
 import 'model/BuildResp.dart';
 import 'model/JenkinsListResp.dart';
 import 'model/ProjectBean.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -57,7 +58,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// 打包
-  void buildProject(String name) async {
+  void _buildProject(String name) async {
     print('build: $name');
     Dio dio = new Dio();
     var deviceType = "";
@@ -91,9 +92,27 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _downloadFile(String url) {
+    if (Platform.isAndroid) {
+
+    } else {
+      _launchURL(url);
+    }
+  }
+
+  _launchURL(String url) async {
+    print('download url is $url');
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      print('Could not launch $url');
+    }
+  }
+
   void _createList(List<ProjectBean> list) {
     if (list.isNotEmpty) {
       for (ProjectBean value in list) {
+        print('download url is ${value.pacUrl}');
         widgets.add(new Card(
           child: new Padding(
             padding: EdgeInsets.all(10),
@@ -138,7 +157,9 @@ class _HomePageState extends State<HomePage> {
                         borderSide: BorderSide(
                             color: Color.fromARGB(255, 189, 162, 39)),
                         textColor: Colors.black,
-                        onPressed: () {},
+                        onPressed: () {
+                          _downloadFile(value.pacUrl);
+                        },
                       ),
                       new Padding(
                         padding: EdgeInsets.only(left: 15),
@@ -153,7 +174,7 @@ class _HomePageState extends State<HomePage> {
                               color: Color.fromARGB(255, 189, 162, 39)),
                           textColor: Colors.black,
                           onPressed: () {
-                            buildProject(value.name);
+                            _buildProject(value.name);
                           },
                         ),
                       )
@@ -200,5 +221,4 @@ class _HomePageState extends State<HomePage> {
     );
     _scaffoldKey.currentState.showSnackBar(snackBar);
   }
-
 }
