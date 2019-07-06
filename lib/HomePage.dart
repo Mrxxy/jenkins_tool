@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:jenkins_tool/util/AppUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'api/Api.dart';
@@ -112,7 +113,7 @@ class _HomePageState extends State<HomePage> {
 
   void _downloadFile(ProjectBean bean) {
     if (Platform.isAndroid) {
-      _checkPermission().then((hasGranted) {
+      AppUtils.checkPermission(PermissionGroup.storage).then((hasGranted) {
         if (hasGranted) {
           _downloadApk(bean);
         } else {
@@ -120,7 +121,7 @@ class _HomePageState extends State<HomePage> {
         }
       });
     } else {
-      _launchURL(bean.pacUrl);
+      AppUtils.launchURL(bean.pacUrl);
     }
   }
 
@@ -138,34 +139,6 @@ class _HomePageState extends State<HomePage> {
         showNotification: true,
         openFileFromNotification: false);
     taskMap.addAll({taskId: savedDir});
-  }
-
-  void _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      print('Could not launch $url');
-    }
-  }
-
-  Future<bool> _checkPermission() async {
-    if (Platform.isAndroid) {
-      PermissionStatus permission = await PermissionHandler()
-          .checkPermissionStatus(PermissionGroup.storage);
-      if (permission != PermissionStatus.granted) {
-        Map<PermissionGroup, PermissionStatus> permissions =
-            await PermissionHandler()
-                .requestPermissions([PermissionGroup.storage]);
-        if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
-    return false;
   }
 
   Widget _createList(int index) {
