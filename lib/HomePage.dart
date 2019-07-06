@@ -8,6 +8,10 @@ import 'model/BuildResp.dart';
 import 'model/JenkinsListResp.dart';
 import 'model/ProjectBean.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:install_plugin/install_plugin.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -21,14 +25,28 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Widget> widgets = [];
+  static const String apkName = 'jenkins.apk';
+  Map<String, String> taskMap = {};
   List<ProjectBean> projectList = [];
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
+    FlutterDownloader.registerCallback((id, status, progress) {
+      print('progress : $progress');
+      if (status == DownloadTaskStatus.complete) {
+        InstallPlugin.installApk(
+            '${taskMap[id]}/$apkName', 'com.goldmantis.app.jenkins_tool');
+      }
+    });
     _getJenkinsList();
+  }
+
+  @override
+  void dispose() {
+    FlutterDownloader.registerCallback(null);
+    super.dispose();
   }
 
   /// 获取jenkins任务列表
@@ -92,19 +110,62 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _downloadFile(String url) {
+  void _downloadFile(ProjectBean bean) {
     if (Platform.isAndroid) {
+      _checkPermission().then((hasGranted) {
+        if (hasGranted) {
+          _downloadApk(bean);
+        } else {
+          _showToast(context, '授权失败，请前往设置-权限管理中打开权限');
+        }
+      });
     } else {
-      _launchURL(url);
+      _launchURL(bean.pacUrl);
     }
   }
 
-  _launchURL(String url) async {
+  void _downloadApk(ProjectBean bean) async {
+    final savedDir = (await getExternalStorageDirectory()).path + '/download';
+    final dir = Directory(savedDir);
+    bool hasExisted = await dir.exists();
+    if (!hasExisted) {
+      dir.create();
+    }
+    String taskId = await FlutterDownloader.enqueue(
+        url: bean.pacUrl,
+        fileName: apkName,
+        savedDir: savedDir,
+        showNotification: true,
+        openFileFromNotification: false);
+    taskMap.addAll({taskId: savedDir});
+  }
+
+  void _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
       print('Could not launch $url');
     }
+  }
+
+  Future<bool> _checkPermission() async {
+    if (Platform.isAndroid) {
+      PermissionStatus permission = await PermissionHandler()
+          .checkPermissionStatus(PermissionGroup.storage);
+      if (permission != PermissionStatus.granted) {
+        Map<PermissionGroup, PermissionStatus> permissions =
+            await PermissionHandler()
+                .requestPermissions([PermissionGroup.storage]);
+        if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+    return false;
   }
 
   Widget _createList(int index) {
@@ -155,7 +216,7 @@ class _HomePageState extends State<HomePage> {
                         BorderSide(color: Color.fromARGB(255, 189, 162, 39)),
                     textColor: Colors.black,
                     onPressed: () {
-                      _downloadFile(value.pacUrl);
+                      _downloadFile(value);
                     },
                   ),
                   new Padding(
@@ -197,6 +258,7 @@ class _HomePageState extends State<HomePage> {
                 Icons.refresh,
                 color: Colors.white,
                 textDirection: TextDirection.ltr,
+                size: 30,
               ),
               onPressed: () {
                 _getJenkinsList();
