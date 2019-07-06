@@ -100,7 +100,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   _launchURL(String url) async {
-    print('download url is $url');
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -118,13 +117,13 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             new Text(
-              '名称:${value.fullName}',
+              '名称: ${value.fullName}',
               textAlign: TextAlign.left,
             ),
             new Padding(
               padding: EdgeInsets.only(top: 10),
               child: new Text(
-                '上次打包时间:${value.currentBuildTime}',
+                '上次打包时间: ${value.currentBuildTime}',
                 textAlign: TextAlign.left,
               ),
             ),
@@ -132,10 +131,10 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.only(top: 10),
               child: new Row(
                 children: <Widget>[
-                  new Text('上次成功${value.lastSuccessNumber}'),
+                  new Text('上次成功: ${value.lastSuccessNumber}'),
                   new Padding(
                     padding: EdgeInsets.only(left: 20),
-                    child: new Text('当前build${value.currentBuildNumber}'),
+                    child: new Text('当前build: ${value.currentBuildNumber}'),
                   )
                 ],
               ),
