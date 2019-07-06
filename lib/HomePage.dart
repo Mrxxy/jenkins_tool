@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:jenkins_tool/page/SpaceHeader.dart';
 import 'package:jenkins_tool/util/AppUtils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -8,11 +9,11 @@ import 'api/Api.dart';
 import 'model/BuildResp.dart';
 import 'model/JenkinsListResp.dart';
 import 'model/ProjectBean.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:install_plugin/install_plugin.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -27,9 +28,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   static const String apkName = 'jenkins.apk';
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  GlobalKey<EasyRefreshState> _easyRefreshKey =
+      new GlobalKey<EasyRefreshState>();
+  GlobalKey<RefreshHeaderState> _headerKey =
+      new GlobalKey<RefreshHeaderState>();
+
   Map<String, String> taskMap = {};
   List<ProjectBean> projectList = [];
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -223,27 +230,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text(widget.title),
-          actions: <Widget>[
-            new IconButton(
-              icon: Icon(
-                Icons.refresh,
-                color: Colors.white,
-                textDirection: TextDirection.ltr,
-                size: 30,
-              ),
-              onPressed: () {
-                _getJenkinsList();
+        appBar: AppBar(title: Text(widget.title)),
+        body: Center(
+          child: EasyRefresh(
+            key: _easyRefreshKey,
+            firstRefresh: true,
+            autoLoad: false,
+            behavior: ScrollOverBehavior(),
+            refreshHeader: SpaceHeader(
+              key: _headerKey,
+            ),
+            onRefresh: () async {
+              _getJenkinsList();
+            },
+            child: ListView.builder(
+              itemCount: projectList.length,
+              itemBuilder: (BuildContext context, int position) {
+                return _createList(position);
               },
-            )
-          ],
-        ),
-        body: ListView.builder(
-          itemCount: projectList.length,
-          itemBuilder: (BuildContext context, int position) {
-            return _createList(position);
-          },
+            ),
+          ),
         ));
   }
 

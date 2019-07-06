@@ -24,12 +24,12 @@ class AppUtils {
     return false;
   }
 
-  static void launchURL(String url) async {
+  static Future<bool> launchURL(String url) async {
     if (await canLaunch(url)) {
-      await launch(url);
+      return await launch(url);
     } else {
       print('Could not launch $url');
     }
+    return false;
   }
-
 }
