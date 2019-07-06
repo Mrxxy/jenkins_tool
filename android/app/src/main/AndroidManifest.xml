@@ -10,7 +10,7 @@
 
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="jenkins_tool"
+        android:label="金螳螂家助手"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
