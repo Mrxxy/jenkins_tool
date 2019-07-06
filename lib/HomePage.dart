@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:install_plugin/install_plugin.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -34,21 +35,23 @@ class _HomePageState extends State<HomePage> {
       new GlobalKey<EasyRefreshState>();
   GlobalKey<RefreshHeaderState> _headerKey =
       new GlobalKey<RefreshHeaderState>();
-
+  ProgressDialog _dialog;
   Map<String, String> taskMap = {};
   List<ProjectBean> projectList = [];
 
   @override
   void initState() {
     super.initState();
+    _dialog = new ProgressDialog(context, ProgressDialogType.Download);
     FlutterDownloader.registerCallback((id, status, progress) {
       print('progress : $progress');
+      _dialog.update(progress: progress * 1.0, message: '下载中，请稍后...');
       if (status == DownloadTaskStatus.complete) {
+        _dialog.hide();
         InstallPlugin.installApk(
             '${taskMap[id]}/$apkName', 'com.goldmantis.app.jenkins_tool');
       }
     });
-    _getJenkinsList();
   }
 
   @override
@@ -146,6 +149,7 @@ class _HomePageState extends State<HomePage> {
         showNotification: true,
         openFileFromNotification: false);
     taskMap.addAll({taskId: savedDir});
+    if (!_dialog.isShowing()) _dialog.show();
   }
 
   Widget _createList(int index) {
