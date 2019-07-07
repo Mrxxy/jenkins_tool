@@ -3,9 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:jenkins_tool/page/SpaceHeader.dart';
 import 'package:jenkins_tool/util/AppUtils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
-import 'api/Api.dart';
+import 'api/constants.dart';
+import 'api/http.dart';
 import 'model/BuildResp.dart';
 import 'model/JenkinsListResp.dart';
 import 'model/ProjectBean.dart';
@@ -17,9 +16,6 @@ import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
 class HomePage extends StatefulWidget {
-  final String title;
-
-  HomePage({Key key, this.title}) : super(key: key);
 
   @override
   _HomePageState createState() {
@@ -62,17 +58,8 @@ class _HomePageState extends State<HomePage> {
 
   /// 获取jenkins任务列表
   void _getJenkinsList() async {
-    Dio dio = new Dio();
-    var deviceType = "";
-    if (Platform.isAndroid) {
-      deviceType = "Android";
-    } else {
-      deviceType = "iOS";
-    }
-    Map<String, String> headers = {'device-type': deviceType};
-    dio.options.headers = headers;
     Response<Map<String, dynamic>> response =
-        await dio.get<Map<String, dynamic>>(Api.jenkinsList);
+        await dio.get<Map<String, dynamic>>(Constants.jenkinsList);
     try {
       var data = JenkinsListResp.fromJsonMap(response.data);
       var result = data.meta.errorCode;
@@ -88,25 +75,8 @@ class _HomePageState extends State<HomePage> {
 
   /// 打包
   void _buildProject(String name) async {
-    print('build: $name');
-    Dio dio = new Dio();
-    var deviceType = "";
-    if (Platform.isAndroid) {
-      deviceType = "Android";
-    } else {
-      deviceType = "iOS";
-    }
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String device = prefs.getString('device');
-    if (device == null || device.isEmpty) {
-      device = Uuid().v4().toString();
-      await prefs.setString('device', device);
-    }
-
-    Map<String, String> headers = {'device-type': deviceType, "device": device};
-    dio.options.headers = headers;
     Response<Map<String, dynamic>> response =
-        await dio.get<Map<String, dynamic>>(Api.jenkinsBuild + name);
+        await dio.get<Map<String, dynamic>>(Constants.jenkinsBuild + name);
     try {
       var data = BuildResp.fromJsonMap(response.data);
       var result = data.meta.errorCode;
@@ -234,7 +204,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(title: Text(widget.title)),
+        appBar: AppBar(title: Text('金螳螂家助手')),
         body: Center(
           child: EasyRefresh(
             key: _easyRefreshKey,

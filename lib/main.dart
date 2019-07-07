@@ -1,13 +1,64 @@
+import 'dart:io';
+
+import 'package:device_info/device_info.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-
+import 'package:jenkins_tool/api/constants.dart';
+import 'package:jenkins_tool/page/LoginPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'HomePage.dart';
+import 'api/http.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  _initDio();
+  _isLogin().then((isLogin) {
+    runApp(MyApp(isLogin));
+  });
+}
+
+Future<bool> _isLogin() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool flag = prefs.get(Constants.keyLoginFlag) ?? false;
+  return flag;
+}
+
+Future _initDio() async {
+  var deviceType = "";
+  var deviceId = "";
+  var deviceName = "";
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  if (Platform.isAndroid) {
+    deviceType = "Android";
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    deviceId = androidInfo.androidId;
+    deviceName = androidInfo.device;
+  } else {
+    deviceType = "iOS";
+    IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+    deviceId = iosInfo.identifierForVendor;
+    deviceName = iosInfo.name;
+  }
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('token');
+
+  Map<String, String> headers = {
+    'device-type': deviceType,
+    "device-id": deviceId,
+    'device-name': deviceName,
+    'token': token
+  };
+  dio.options.headers = headers;
+  dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
+}
 
 class MyApp extends StatelessWidget {
+  final bool loginFlag;
+
+  MyApp(this.loginFlag);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,7 +66,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Color.fromARGB(255, 189, 162, 39),
       ),
-      home: HomePage(title: '金螳螂家助手'),
+      home: !loginFlag ? LoginPage() : HomePage(),
+      routes: <String, WidgetBuilder>{
+        '/home': (BuildContext context) => new HomePage()
+      },
     );
   }
 }
