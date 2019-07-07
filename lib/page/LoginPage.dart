@@ -92,7 +92,8 @@ class _LoginPageState extends State<LoginPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
                     onPressed: () {
-                      if ((_accountKey.currentState as FormFieldState).validate() &&
+                      if ((_accountKey.currentState as FormFieldState)
+                              .validate() &&
                           (_pwdKey.currentState as FormFieldState).validate()) {
                         _login(_accountController.text, _pwdController.text);
                       }
@@ -122,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(Constants.keyToken, data.data);
         prefs.setBool(Constants.keyLoginFlag, true);
-        Navigator.of(context).pushNamed('/home');
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
       } else {
         showToast(context, '登录失败');
       }
