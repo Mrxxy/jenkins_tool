@@ -42,7 +42,7 @@ Future _initDio() async {
     deviceName = iosInfo.name;
   }
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String token = prefs.getString('token');
+  String token = prefs.getString(Constants.keyToken);
 
   Map<String, String> headers = {
     'device-type': deviceType,
@@ -52,6 +52,12 @@ Future _initDio() async {
   };
   dio.options.headers = headers;
   dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
+  dio.interceptors
+      .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> headers = options.headers;
+    headers.addAll({'token': prefs.getString(Constants.keyToken)});
+  }));
 }
 
 class MyApp extends StatelessWidget {
