@@ -42,6 +42,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _dialog = new ProgressDialog(context, ProgressDialogType.Download);
     FlutterDownloader.registerCallback((id, status, progress) {
+      print('progress : $progress');
       _dialog.update(progress: progress * 1.0, message: '下载中，请稍后...');
       if (status == DownloadTaskStatus.complete) {
         _dialog.hide();
@@ -173,23 +174,25 @@ class _HomePageState extends State<HomePage> {
                       _downloadFile(value);
                     },
                   ),
-                  new Padding(
-                    padding: EdgeInsets.only(left: 15),
-                    child: OutlineButton(
-                      child: new Text(
-                        '打包',
-                        style: TextStyle(fontSize: 13),
-                      ),
-                      shape: new RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                      borderSide:
-                          BorderSide(color: Color.fromARGB(255, 189, 162, 39)),
-                      textColor: Colors.black,
-                      onPressed: () {
-                        _buildProject(value.name);
-                      },
-                    ),
-                  )
+                  value.build
+                      ? new Padding(
+                          padding: EdgeInsets.only(left: 15),
+                          child: OutlineButton(
+                            child: new Text(
+                              '打包',
+                              style: TextStyle(fontSize: 13),
+                            ),
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            borderSide: BorderSide(
+                                color: Color.fromARGB(255, 189, 162, 39)),
+                            textColor: Colors.black,
+                            onPressed: () {
+                              _buildProject(value.name);
+                            },
+                          ),
+                        )
+                      : new Text('')
                 ],
               ),
             )
@@ -208,7 +211,10 @@ class _HomePageState extends State<HomePage> {
           title: Text('金螳螂家助手'),
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.swap_horiz),
+              icon: Icon(
+                Icons.swap_horiz,
+                color: Colors.white,
+              ),
               tooltip: '注销',
               onPressed: () {
                 showDialog(

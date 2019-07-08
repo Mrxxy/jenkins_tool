@@ -21,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   GlobalKey _accountKey = new GlobalKey<FormFieldState>();
   TextEditingController _pwdController = TextEditingController();
   GlobalKey _pwdKey = new GlobalKey<FormFieldState>();
+  bool _hidePwd = true;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +36,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         body: new SingleChildScrollView(
             child: new Column(
+          mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(top: 40),
@@ -65,11 +67,20 @@ class _LoginPageState extends State<LoginPage> {
               child: TextFormField(
                 key: _pwdKey,
                 decoration: InputDecoration(
-                  labelText: '密码',
-                  hintText: 'ERP密码',
-                  prefixIcon: Icon(Icons.lock),
-                ),
-                obscureText: true,
+                    labelText: '密码',
+                    hintText: 'ERP密码',
+                    prefixIcon: Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        Icons.remove_red_eye,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _hidePwd = !_hidePwd;
+                        });
+                      },
+                    )),
+                obscureText: _hidePwd,
                 cursorColor: Colors.black54,
                 controller: _pwdController,
                 autovalidate: true,
@@ -84,10 +95,10 @@ class _LoginPageState extends State<LoginPage> {
                   height: 45,
                   width: double.infinity,
                   child: RaisedButton(
-                    color: Color.fromARGB(255, 213, 187, 85),
+                    color: Color.fromARGB(255, 61, 168, 245),
                     child: Text(
                       '登录',
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -123,7 +134,8 @@ class _LoginPageState extends State<LoginPage> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(Constants.keyToken, data.data);
         prefs.setBool(Constants.keyLoginFlag, true);
-        Navigator.of(context).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
       } else {
         showToast(context, '登录失败');
       }

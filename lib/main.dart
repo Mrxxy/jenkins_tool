@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primaryColor: Color.fromARGB(255, 189, 162, 39),
+        primaryColor: Color.fromARGB(255, 61, 168, 245),
       ),
       home: !loginFlag ? LoginPage() : HomePage(),
       routes: <String, WidgetBuilder>{
