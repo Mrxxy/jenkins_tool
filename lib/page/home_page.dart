@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:jenkins_tool/page/space_header.dart';
 import 'package:jenkins_tool/util/app_utils.dart';
 import 'package:jenkins_tool/api/constants.dart';
@@ -14,9 +16,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:install_plugin/install_plugin.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
-
   @override
   _HomePageState createState() {
     return _HomePageState();
@@ -204,7 +206,22 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(title: Text('金螳螂家助手')),
+        appBar: AppBar(
+          title: Text('金螳螂家助手'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.swap_horiz),
+              tooltip: '注销',
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setString(Constants.keyToken, '');
+                prefs.setBool(Constants.keyLoginFlag, false);
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/login', (Route<dynamic> route) => false);
+              },
+            )
+          ],
+        ),
         body: Center(
           child: EasyRefresh(
             key: _easyRefreshKey,
