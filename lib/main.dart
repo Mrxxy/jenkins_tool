@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:jenkins_tool/api/constants.dart';
-import 'package:jenkins_tool/page/LoginPage.dart';
+import 'package:jenkins_tool/page/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'HomePage.dart';
+import 'package:jenkins_tool/page/home_page.dart';
 import 'api/http.dart';
 
 void main() async {

@@ -1,4 +1,4 @@
-import 'package:jenkins_tool/model/ProjectBean.dart';
+import 'package:jenkins_tool/model/project_bean.dart';
 import 'package:jenkins_tool/model/meta.dart';
 
 class JenkinsListResp {
