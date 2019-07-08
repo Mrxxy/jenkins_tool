@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:jenkins_tool/api/constants.dart';
+import 'package:jenkins_tool/page/history_page.dart';
 import 'package:jenkins_tool/page/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jenkins_tool/page/home_page.dart';
@@ -50,6 +51,7 @@ Future _initDio() async {
     'token': token
   };
   dio.options.headers = headers;
+  dio.options.baseUrl = Constants.baseUrl;
   dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
   dio.interceptors
       .add(InterceptorsWrapper(onRequest: (RequestOptions options) async {
@@ -74,7 +76,8 @@ class MyApp extends StatelessWidget {
       home: !loginFlag ? LoginPage() : HomePage(),
       routes: <String, WidgetBuilder>{
         '/home': (BuildContext context) => new HomePage(),
-        '/login': (BuildContext context) => new LoginPage()
+        '/login': (BuildContext context) => new LoginPage(),
+        '/history': (BuildContext context) => new HistoryPage(),
       },
     );
   }

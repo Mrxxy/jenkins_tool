@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:jenkins_tool/page/history_page.dart';
 import 'package:jenkins_tool/page/space_header.dart';
 import 'package:jenkins_tool/util/app_utils.dart';
 import 'package:jenkins_tool/api/constants.dart';
@@ -126,96 +127,106 @@ class _HomePageState extends State<HomePage> {
 
   Widget _createList(int index) {
     ProjectBean value = projectList.elementAt(index);
-    Widget card = new Card(
-      child: new Padding(
-        padding: EdgeInsets.all(10),
-        child: new Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                new Text(
-                  '名称: ${value.fullName}',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 15),
-                  child: Text('状态:'),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 15),
-                  child: Icon(
-                    Icons.brightness_1,
-                    size: 18,
-                    color: value.currentBuildNumber == value.lastSuccessNumber
-                        ? Color.fromARGB(255, 70, 119, 177)
-                        : Colors.red,
-                  ),
-                )
-              ],
-            ),
-            new Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: new Text(
-                '上次打包时间: ${value.currentBuildTime}',
-                textAlign: TextAlign.left,
-              ),
-            ),
-            new Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: new Row(
+    Widget card = GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HistoryPage(
+                      projectName: value.name,
+                    )));
+      },
+      child: new Card(
+        child: new Padding(
+          padding: EdgeInsets.all(10),
+          child: new Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
                 children: <Widget>[
-                  new Text('上次成功: ${value.lastSuccessNumber}'),
-                  new Padding(
-                    padding: EdgeInsets.only(left: 20),
-                    child: new Text('当前build: ${value.currentBuildNumber}'),
+                  new Text(
+                    '名称: ${value.fullName}',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 15),
+                    child: Text('状态:'),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 15),
+                    child: Icon(
+                      Icons.brightness_1,
+                      size: 18,
+                      color: value.currentBuildNumber == value.lastSuccessNumber
+                          ? Color.fromARGB(255, 70, 119, 177)
+                          : Colors.red,
+                    ),
                   )
                 ],
               ),
-            ),
-            new Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: new Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  OutlineButton(
-                    child: new Text(
-                      '安装',
-                      style: TextStyle(fontSize: 13),
-                    ),
-                    shape: new RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    borderSide:
-                        BorderSide(color: Color.fromARGB(255, 189, 162, 39)),
-                    textColor: Colors.black,
-                    onPressed: () {
-                      _downloadFile(value);
-                    },
-                  ),
-                  value.build
-                      ? new Padding(
-                          padding: EdgeInsets.only(left: 15),
-                          child: OutlineButton(
-                            child: new Text(
-                              '打包',
-                              style: TextStyle(fontSize: 13),
-                            ),
-                            shape: new RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            borderSide: BorderSide(
-                                color: Color.fromARGB(255, 189, 162, 39)),
-                            textColor: Colors.black,
-                            onPressed: () {
-                              _buildProject(value.name);
-                            },
-                          ),
-                        )
-                      : new Text('')
-                ],
+              new Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: new Text(
+                  '上次打包时间: ${value.currentBuildTime}',
+                  textAlign: TextAlign.left,
+                ),
               ),
-            )
-          ],
+              new Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: new Row(
+                  children: <Widget>[
+                    new Text('上次成功: ${value.lastSuccessNumber}'),
+                    new Padding(
+                      padding: EdgeInsets.only(left: 20),
+                      child: new Text('当前build: ${value.currentBuildNumber}'),
+                    )
+                  ],
+                ),
+              ),
+              new Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    OutlineButton(
+                      child: new Text(
+                        '安装',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      shape: new RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(255, 189, 162, 39)),
+                      textColor: Colors.black,
+                      onPressed: () {
+                        _downloadFile(value);
+                      },
+                    ),
+                    value.build
+                        ? new Padding(
+                            padding: EdgeInsets.only(left: 15),
+                            child: OutlineButton(
+                              child: new Text(
+                                '打包',
+                                style: TextStyle(fontSize: 13),
+                              ),
+                              shape: new RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 189, 162, 39)),
+                              textColor: Colors.black,
+                              onPressed: () {
+                                _buildProject(value.name);
+                              },
+                            ),
+                          )
+                        : new Text('')
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
