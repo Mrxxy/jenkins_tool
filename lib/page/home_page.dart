@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
         url: bean.pacUrl,
         fileName: apkName,
         savedDir: savedDir,
-        showNotification: true,
+        showNotification: false,
         openFileFromNotification: false);
     taskMap.addAll({taskId: savedDir});
     if (!_dialog.isShowing()) _dialog.show();
@@ -132,9 +132,28 @@ class _HomePageState extends State<HomePage> {
         child: new Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            new Text(
-              '名称: ${value.fullName}',
-              textAlign: TextAlign.left,
+            Row(
+              children: <Widget>[
+                new Text(
+                  '名称: ${value.fullName}',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 15),
+                  child: Text('状态:'),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 15),
+                  child: Icon(
+                    Icons.brightness_1,
+                    size: 18,
+                    color: value.currentBuildNumber == value.lastSuccessNumber
+                        ? Color.fromARGB(255, 70, 119, 177)
+                        : Colors.red,
+                  ),
+                )
+              ],
             ),
             new Padding(
               padding: EdgeInsets.only(top: 10),
@@ -208,7 +227,10 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('金螳螂家助手'),
+          title: Text(
+            '金螳螂家助手',
+            style: TextStyle(color: Colors.white),
+          ),
           actions: <Widget>[
             IconButton(
               icon: Icon(

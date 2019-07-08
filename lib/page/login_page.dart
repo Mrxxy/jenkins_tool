@@ -31,6 +31,7 @@ class _LoginPageState extends State<LoginPage> {
           title: Center(
               child: new Text(
             '登录',
+            style: TextStyle(color: Colors.white),
             textAlign: TextAlign.center,
           )),
         ),
@@ -95,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: 45,
                   width: double.infinity,
                   child: RaisedButton(
-                    color: Color.fromARGB(255, 61, 168, 245),
+                    color: Color.fromARGB(255, 119, 194, 248),
                     child: Text(
                       '登录',
                       style: TextStyle(fontSize: 18, color: Colors.white),
