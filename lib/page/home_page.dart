@@ -42,7 +42,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _dialog = new ProgressDialog(context, ProgressDialogType.Download);
     FlutterDownloader.registerCallback((id, status, progress) {
-      print('progress : $progress');
       _dialog.update(progress: progress * 1.0, message: '下载中，请稍后...');
       if (status == DownloadTaskStatus.complete) {
         _dialog.hide();
@@ -126,7 +125,6 @@ class _HomePageState extends State<HomePage> {
 
   Widget _createList(int index) {
     ProjectBean value = projectList.elementAt(index);
-    print('download url is ${value.pacUrl}');
     Widget card = new Card(
       child: new Padding(
         padding: EdgeInsets.all(10),
@@ -212,12 +210,37 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               icon: Icon(Icons.swap_horiz),
               tooltip: '注销',
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setString(Constants.keyToken, '');
-                prefs.setBool(Constants.keyLoginFlag, false);
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/login', (Route<dynamic> route) => false);
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('提示'),
+                        content: Text('确认退出当前账号？'),
+                        actions: <Widget>[
+                          new FlatButton(
+                            onPressed: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              prefs.setString(Constants.keyToken, '');
+                              prefs.setBool(Constants.keyLoginFlag, false);
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/login', (Route<dynamic> route) => false);
+                            },
+                            child: new Text(
+                              "确认",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                          new FlatButton(
+                            onPressed: () {
+                              Navigator.of(context).pop("");
+                            },
+                            child: new Text("取消"),
+                          ),
+                        ],
+                      );
+                    });
               },
             )
           ],

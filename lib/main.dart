@@ -38,7 +38,7 @@ Future _initDio() async {
     deviceType = "iOS";
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
     deviceId = iosInfo.identifierForVendor;
-    deviceName = iosInfo.name;
+    deviceName = iosInfo.model;
   }
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String token = prefs.getString(Constants.keyToken);
