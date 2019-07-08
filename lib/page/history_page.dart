@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:install_plugin/install_plugin.dart';
 import 'package:jenkins_tool/api/constants.dart';
@@ -42,14 +41,6 @@ class _HistoryPageState extends State<HistoryPage> {
   void initState() {
     super.initState();
     _dialog = new ProgressDialog(context, ProgressDialogType.Download);
-    FlutterDownloader.registerCallback((id, status, progress) {
-      _dialog.update(progress: progress * 1.0, message: '下载中，请稍后...');
-      if (status == DownloadTaskStatus.complete) {
-        _dialog.hide();
-        InstallPlugin.installApk(
-            '${taskMap[id]}/$apkName', 'com.goldmantis.app.jenkins_tool');
-      }
-    });
   }
 
   @override
@@ -170,19 +161,24 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   void _downloadApk(HistoryBean bean) async {
-    final savedDir = (await getExternalStorageDirectory()).path + '/download';
+    final savedDir =
+        (await getExternalStorageDirectory()).path + '/GoldmantisHome';
     final dir = Directory(savedDir);
     bool hasExisted = await dir.exists();
     if (!hasExisted) {
       dir.create();
     }
-    String taskId = await FlutterDownloader.enqueue(
-        url: bean.pacUrl,
-        fileName: apkName,
-        savedDir: savedDir,
-        showNotification: false,
-        openFileFromNotification: false);
-    taskMap.addAll({taskId: savedDir});
+    var filePath = savedDir + "/" + apkName;
     if (!_dialog.isShowing()) _dialog.show();
+    await dio.download(bean.pacUrl, filePath, onProgress: (received, total) {
+      var progress = (received / total * 100).toInt();
+      if (_dialog.isShowing()) {
+        _dialog.update(progress: progress * 1.0, message: '下载中，请稍后...');
+        if (received == total) {
+          _dialog.hide();
+          InstallPlugin.installApk(filePath, 'com.goldmantis.app.jenkins_tool');
+        }
+      }
+    });
   }
 }
