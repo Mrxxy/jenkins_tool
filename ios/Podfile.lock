@@ -2,8 +2,6 @@ PODS:
   - device_info (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - flutter_downloader (0.0.1):
-    - Flutter
   - install_plugin (0.0.1):
     - Flutter
   - path_provider (0.0.1):
@@ -17,8 +15,7 @@ PODS:
 
 DEPENDENCIES:
   - device_info (from `.symlinks/plugins/device_info/ios`)
-  - Flutter (from `.symlinks/flutter/ios`)
-  - flutter_downloader (from `.symlinks/plugins/flutter_downloader/ios`)
+  - Flutter (from `.symlinks/flutter/ios-release`)
   - install_plugin (from `.symlinks/plugins/install_plugin/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
@@ -29,9 +26,7 @@ EXTERNAL SOURCES:
   device_info:
     :path: ".symlinks/plugins/device_info/ios"
   Flutter:
-    :path: ".symlinks/flutter/ios"
-  flutter_downloader:
-    :path: ".symlinks/plugins/flutter_downloader/ios"
+    :path: ".symlinks/flutter/ios-release"
   install_plugin:
     :path: ".symlinks/plugins/install_plugin/ios"
   path_provider:
@@ -46,7 +41,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   device_info: 3ebad48f726348f69abd802f3334a8d1ed795fbd
   Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
-  flutter_downloader: 058b9c41564a90500f67f3e432e3524613a7fd83
   install_plugin: a13e7ddd2bab0c701b48cd359c26d0394125b6fb
   path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
   permission_handler: fa6b0d784b1a43cb96b468a5b8365cb130b1956a

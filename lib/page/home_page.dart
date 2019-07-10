@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:jenkins_tool/page/history_page.dart';
+import 'package:jenkins_tool/page/progress_dialog.dart';
 import 'package:jenkins_tool/page/space_header.dart';
 import 'package:jenkins_tool/util/app_utils.dart';
 import 'package:jenkins_tool/api/constants.dart';
@@ -15,7 +16,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:install_plugin/install_plugin.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -33,14 +33,17 @@ class _HomePageState extends State<HomePage> {
       new GlobalKey<EasyRefreshState>();
   GlobalKey<RefreshHeaderState> _headerKey =
       new GlobalKey<RefreshHeaderState>();
-  ProgressDialog _dialog;
-  Map<String, String> taskMap = {};
   List<ProjectBean> projectList = [];
+  ProgressDialog _progressDialog;
+  CancelToken _downloadToken;
 
   @override
   void initState() {
     super.initState();
-    _dialog = new ProgressDialog(context, ProgressDialogType.Download);
+    _progressDialog = ProgressDialog(context, () {
+      _downloadToken.cancel();
+      _progressDialog.hide();
+    });
   }
 
   /// 获取jenkins任务列表
@@ -93,6 +96,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _downloadApk(ProjectBean bean) async {
+    _downloadToken = new CancelToken();
     final savedDir =
         (await getExternalStorageDirectory()).path + '/GoldmantisHome';
     final dir = Directory(savedDir);
@@ -101,15 +105,16 @@ class _HomePageState extends State<HomePage> {
       dir.create();
     }
     var filePath = savedDir + "/" + apkName;
-    if (!_dialog.isShowing()) _dialog.show();
-    await dio.download(bean.pacUrl, filePath, onProgress: (received, total) {
-      var progress = (received / total * 100).toInt();
-      if (_dialog.isShowing()) {
-        _dialog.update(progress: progress * 1.0, message: '下载中，请稍后...');
-        if (received == total) {
-          _dialog.hide();
-          InstallPlugin.installApk(filePath, 'com.goldmantis.app.jenkins_tool');
-        }
+    if (!_progressDialog.isShowing()) {
+      _progressDialog.show();
+    }
+    await dio.download(bean.pacUrl, filePath, cancelToken: _downloadToken,
+        onProgress: (received, total) {
+      var progress = received / total;
+      _progressDialog.update(progress);
+      if (received == total) {
+        _progressDialog.hide();
+        InstallPlugin.installApk(filePath, 'com.goldmantis.app.jenkins_tool');
       }
     });
   }
