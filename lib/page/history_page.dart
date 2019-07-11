@@ -8,11 +8,11 @@ import 'package:install_plugin/install_plugin.dart';
 import 'package:jenkins_tool/api/constants.dart';
 import 'package:jenkins_tool/api/http.dart';
 import 'package:jenkins_tool/model/hisotry_resp.dart';
+import 'package:jenkins_tool/page/progress_dialog.dart';
 import 'package:jenkins_tool/page/space_header.dart';
 import 'package:jenkins_tool/util/app_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 
 class HistoryPage extends StatefulWidget {
   final String projectName;
@@ -32,7 +32,8 @@ class _HistoryPageState extends State<HistoryPage> {
   GlobalKey<RefreshHeaderState> _headerKey =
       new GlobalKey<RefreshHeaderState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  ProgressDialog _dialog;
+  ProgressDialog _progressDialog;
+  CancelToken _downloadToken;
 
   List<HistoryBean> projectList = [];
   Map<String, String> taskMap = {};
@@ -40,7 +41,10 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   void initState() {
     super.initState();
-    _dialog = new ProgressDialog(context, ProgressDialogType.Download);
+    _progressDialog = ProgressDialog(context, () {
+      _downloadToken.cancel();
+      _progressDialog.hide();
+    });
   }
 
   @override
@@ -161,6 +165,7 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   void _downloadApk(HistoryBean bean) async {
+    _downloadToken = new CancelToken();
     final savedDir =
         (await getExternalStorageDirectory()).path + '/GoldmantisHome';
     final dir = Directory(savedDir);
@@ -169,16 +174,17 @@ class _HistoryPageState extends State<HistoryPage> {
       dir.create();
     }
     var filePath = savedDir + "/" + apkName;
-    if (!_dialog.isShowing()) _dialog.show();
-    await dio.download(bean.pacUrl, filePath, onProgress: (received, total) {
-      var progress = (received / total * 100).toInt();
-      if (_dialog.isShowing()) {
-        _dialog.update(progress: progress * 1.0, message: '下载中，请稍后...');
-        if (received == total) {
-          _dialog.hide();
-          InstallPlugin.installApk(filePath, 'com.goldmantis.app.jenkins_tool');
-        }
-      }
-    });
+    if (!_progressDialog.isShowing()) {
+      _progressDialog.show();
+    }
+    await dio.download(bean.pacUrl, filePath, cancelToken: _downloadToken,
+        onProgress: (received, total) {
+          var progress = received / total;
+          _progressDialog.update(progress);
+          if (received == total) {
+            _progressDialog.hide();
+            InstallPlugin.installApk(filePath, 'com.goldmantis.app.jenkins_tool');
+          }
+        });
   }
 }
