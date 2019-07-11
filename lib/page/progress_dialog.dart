@@ -52,7 +52,7 @@ class ProgressDialog {
 }
 
 class _Dialog extends StatefulWidget {
-  var _dialog = new _DialogState();
+  final _dialog = new _DialogState();
 
   update() {
     _dialog.changeState();
@@ -77,51 +77,55 @@ class _DialogState extends State<_Dialog> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(left: 15, top: 20, bottom: 10),
-            child: Text(
-              '下载中,请稍后...',
-              style: TextStyle(fontSize: 18),
+    return WillPopScope(
+      onWillPop: _callback,
+      child: SizedBox(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(left: 15, top: 20, bottom: 10),
+              child: Text(
+                '下载中,请稍后...',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
-            child: LinearProgressIndicator(
-              value: _progress,
-            ),
-          ),
-          Padding(
+            Padding(
               padding:
                   EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Text('${(_progress * 100).toInt()}/100'),
-                ],
-              )),
-          Padding(
-              padding:
-                  EdgeInsets.only(top: 10, bottom: 20, left: 15, right: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  GestureDetector(
-                    child: Text(
-                      '取消',
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 119, 194, 248),
-                          fontSize: 15),
-                    ),
-                    onTap: _callback,
-                  )
-                ],
-              )),
-        ],
+              child: LinearProgressIndicator(
+                value: _progress,
+              ),
+            ),
+            Padding(
+                padding:
+                    EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text('${(_progress * 100).toInt()}/100'),
+                  ],
+                )),
+            Padding(
+                padding:
+                    EdgeInsets.only(top: 10, bottom: 20, left: 15, right: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    GestureDetector(
+                      child: Text(
+                        '取消',
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 119, 194, 248),
+                            fontSize: 15),
+                      ),
+                      onTap: _callback,
+                    )
+                  ],
+                )),
+          ],
+        ),
       ),
     );
   }
