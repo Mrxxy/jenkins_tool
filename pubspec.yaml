@@ -58,6 +58,8 @@ flutter:
   assets:
     - assets/flare/SpaceAnim.flr
     - assets/images/login_logo.png
+    - assets/images/ic_pwd_visible.png
+    - assets/images/ic_pwd_invisible.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

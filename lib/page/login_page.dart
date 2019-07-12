@@ -71,9 +71,19 @@ class _LoginPageState extends State<LoginPage> {
                     hintText: 'ERP密码',
                     prefixIcon: Icon(Icons.lock),
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        Icons.remove_red_eye,
-                      ),
+                      icon: _hidePwd
+                          ? Image.asset(
+                              'assets/images/ic_pwd_invisible.png',
+                              color: Color.fromARGB(255, 119, 194, 248),
+                              width: 24,
+                              height: 24,
+                            )
+                          : Image.asset(
+                              'assets/images/ic_pwd_visible.png',
+                              color: Color.fromARGB(255, 119, 194, 248),
+                              width: 24,
+                              height: 24,
+                            ),
                       onPressed: () {
                         setState(() {
                           _hidePwd = !_hidePwd;
@@ -137,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.of(context)
             .pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
       } else {
-        showToast(context, '登录失败');
+        showToast(context, data.meta.errorMsg);
       }
       print(response.data.toString());
     } catch (e) {
