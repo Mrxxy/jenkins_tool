@@ -114,11 +114,14 @@ class _DialogState extends State<_Dialog> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     GestureDetector(
-                      child: Text(
-                        '取消',
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 119, 194, 248),
-                            fontSize: 15),
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          '取消',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 119, 194, 248),
+                              fontSize: 15),
+                        ),
                       ),
                       onTap: _callback,
                     )
