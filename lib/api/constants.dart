@@ -3,6 +3,7 @@ class Constants {
   static final String jenkinsList = "/jenkins/list";
   static final String historyList = "/jenkins/history/";
   static final String jenkinsBuild = "/jenkins/build/";
+  static final String updateUrl = '/jenkins/version';
   static final String loginUrl = '/user/login';
 
   static final String keyLoginFlag = 'key_login_flag';

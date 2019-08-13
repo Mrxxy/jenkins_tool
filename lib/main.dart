@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:jenkins_tool/api/constants.dart';
 import 'package:jenkins_tool/page/history_page.dart';
 import 'package:jenkins_tool/page/login_page.dart';
+import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jenkins_tool/page/home_page.dart';
 import 'api/http.dart';
@@ -44,11 +45,14 @@ Future _initDio() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String token = prefs.getString(Constants.keyToken);
 
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
   Map<String, String> headers = {
     'device-type': deviceType,
     "device-id": deviceId,
     'device-name': deviceName,
-    'token': token
+    'token': token,
+    'app-version': packageInfo.version
   };
   dio.options.headers = headers;
   dio.options.baseUrl = Constants.baseUrl;

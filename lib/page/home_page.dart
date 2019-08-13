@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:jenkins_tool/model/check_update_resp.dart';
 import 'package:jenkins_tool/page/history_page.dart';
 import 'package:jenkins_tool/page/progress_dialog.dart';
 import 'package:jenkins_tool/page/space_header.dart';
@@ -44,6 +45,20 @@ class _HomePageState extends State<HomePage> {
       _downloadToken.cancel();
       _progressDialog.hide();
     });
+  }
+
+  void _checkUpdate() async {
+    Response<Map<String, dynamic>> response =
+        await dio.get<Map<String, dynamic>>(Constants.updateUrl);
+    try {
+      var data = CheckUpdateResp.fromJsonMap(response.data);
+      var flag = data.data.updateFlag;
+      if (flag == 10086) {
+        _showAlertDialog(context, data.data.desc, data.data.url);
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   /// 获取jenkins任务列表
@@ -289,6 +304,7 @@ class _HomePageState extends State<HomePage> {
             ),
             onRefresh: () async {
               _getJenkinsList();
+              _checkUpdate();
             },
             child: ListView.builder(
               itemCount: projectList.length,
@@ -298,6 +314,29 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ));
+  }
+
+  void _showAlertDialog(BuildContext context, String desc, String url) {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+                title: new Text("更新提示"),
+                content: new Text(desc),
+                actions: <Widget>[
+                  new FlatButton(
+                    child: new Text("取消"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  new FlatButton(
+                    child: new Text("下载"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      AppUtils.launchURL(url);
+                    },
+                  )
+                ]));
   }
 
   void _showToast(BuildContext context, String content) {
