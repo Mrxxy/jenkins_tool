@@ -72,6 +72,13 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           projectList = data.data;
         });
+      } else {
+        _showToast(context, data.meta.errorMsg);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString(Constants.keyToken, '');
+        prefs.setBool(Constants.keyLoginFlag, false);
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
       }
     } catch (e) {
       print(e.toString());
